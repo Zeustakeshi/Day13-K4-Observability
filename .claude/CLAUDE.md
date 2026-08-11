@@ -10,3 +10,5 @@ kế hoạch cho người dùng và chờ xác nhận rồi mới code:
 Chỉ bắt đầu viết/sửa code sau khi người dùng đồng ý (hoặc không phản đối rõ
 ràng khi được hỏi). Không tự ý nhảy sang block tiếp theo mà không báo trước —
 kể cả khi checkpoint trước đã xanh.
+
+DÙng môi trường conda avtivate ai_in_action
