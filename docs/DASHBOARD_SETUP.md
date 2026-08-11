@@ -17,14 +17,19 @@ Trường `query` trong YAML là pseudocode mô tả phép tính, không phải 
 
 Giữ time range mặc định 60 phút, refresh 30 giây và hiển thị threshold/SLO line. Giá trị chính xác nằm trong `config/dashboard.yaml`; không tự đổi contract chỉ để ảnh dashboard đẹp hơn.
 
-## Cách dựng
+## Cách dựng Grafana Dashboard
 
 1. Hoàn thiện logging/PII và chạy API.
-2. Chạy `python scripts/load_test.py --concurrency 5` để tạo baseline.
-3. Dùng `data/logs.jsonl` làm nguồn chuẩn để tạo đúng sáu panel bằng Streamlit, notebook, Grafana hoặc công cụ tương đương. Langfuse vẫn là nơi mở trace/prompt version để điều tra sâu.
-4. Đặt tên panel, đơn vị và threshold giống contract.
-5. Chạy validator:
-
+2. Khởi chạy Grafana Stack (Grafana + Loki + Promtail) qua Docker Compose:
+```bash
+docker compose up -d
+# Hoặc chạy script tiện ích:
+python scripts/start_grafana.py
+```
+3. Truy cập Grafana tại `http://localhost:3000` (User: `admin` / Password: `admin`).
+   Dashboard **Day 13 AI Observability Dashboard** đã được tự động nạp (provisioned) với đầy đủ 6 panel đọc trực tiếp dữ liệu từ `data/logs.jsonl` qua Loki.
+4. Chạy `python scripts/load_test.py --concurrency 5` để tạo dữ liệu baseline.
+5. Kiểm tra contract của dashboard:
 ```bash
 python scripts/validate_dashboard.py
 ```

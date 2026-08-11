@@ -82,13 +82,15 @@ uvicorn app.main:app --reload --env-file .env
 Terminal 2:
 
 ```bash
+docker compose up -d
+# Hoặc python scripts/start_grafana.py
 python scripts/load_test.py
 python scripts/validate_logs.py
 python scripts/validate_dashboard.py
 python -m pytest -q
 ```
 
-API mặc định chạy tại `http://127.0.0.1:8000`; health check ở `/health`, metrics ở `/metrics`.
+API mặc định chạy tại `http://127.0.0.1:8000`; Grafana chạy tại `http://localhost:3000`; health check ở `/health`, metrics ở `/metrics`.
 
 ## Lỗi thường gặp
 
