@@ -17,9 +17,7 @@
       "datasource": { "type": "loki", "uid": "Loki" },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "color": { "mode": "thresholds" },
           "custom": { "sparkline": { "show": true } },
           "unit": "ms",
           "thresholds": {
@@ -43,7 +41,7 @@
         {
           "datasource": { "type": "loki", "uid": "Loki" },
           "editorMode": "code",
-          "expr": "avg(quantile_over_time(0.95, {job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [1m]))",
+          "expr": "quantile_over_time(0.95, {job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [1m])",
           "queryType": "range",
           "refId": "A"
         }
@@ -57,9 +55,7 @@
       "datasource": { "type": "loki", "uid": "Loki" },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "color": { "mode": "thresholds" },
           "custom": { "sparkline": { "show": true } },
           "unit": "req/min",
           "thresholds": {
@@ -97,9 +93,7 @@
       "datasource": { "type": "loki", "uid": "Loki" },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "color": { "mode": "thresholds" },
           "custom": { "sparkline": { "show": true } },
           "unit": "percent",
           "thresholds": {
@@ -137,9 +131,7 @@
       "datasource": { "type": "loki", "uid": "Loki" },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "color": { "mode": "thresholds" },
           "custom": { "sparkline": { "show": true } },
           "unit": "currencyUSD",
           "thresholds": {
@@ -177,9 +169,7 @@
       "datasource": { "type": "loki", "uid": "Loki" },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "color": { "mode": "thresholds" },
           "custom": { "sparkline": { "show": true } },
           "min": 0,
           "max": 1,
@@ -204,7 +194,7 @@
         {
           "datasource": { "type": "loki", "uid": "Loki" },
           "editorMode": "code",
-          "expr": "avg(avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap quality_score [1m]))",
+          "expr": "avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap quality_score [1m])",
           "queryType": "range",
           "refId": "A"
         }
@@ -254,7 +244,7 @@
         {
           "datasource": { "type": "loki", "uid": "Loki" },
           "editorMode": "code",
-          "expr": "avg(quantile_over_time(0.50, {job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [1m]))",
+          "expr": "quantile_over_time(0.50, {job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [1m])",
           "legendFormat": "P50",
           "queryType": "range",
           "refId": "A"
@@ -262,7 +252,7 @@
         {
           "datasource": { "type": "loki", "uid": "Loki" },
           "editorMode": "code",
-          "expr": "avg(quantile_over_time(0.95, {job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [1m]))",
+          "expr": "quantile_over_time(0.95, {job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [1m])",
           "legendFormat": "P95 (SLO <= 3000ms)",
           "queryType": "range",
           "refId": "B"
@@ -270,7 +260,7 @@
         {
           "datasource": { "type": "loki", "uid": "Loki" },
           "editorMode": "code",
-          "expr": "avg(quantile_over_time(0.99, {job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [1m]))",
+          "expr": "quantile_over_time(0.99, {job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [1m])",
           "legendFormat": "P99",
           "queryType": "range",
           "refId": "C"
@@ -442,7 +432,7 @@
         {
           "datasource": { "type": "loki", "uid": "Loki" },
           "editorMode": "code",
-          "expr": "avg(avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap quality_score [1m]))",
+          "expr": "avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap quality_score [1m])",
           "legendFormat": "Quality Score",
           "queryType": "range",
           "refId": "A"
