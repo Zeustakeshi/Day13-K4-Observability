@@ -2,8 +2,6 @@
 
 ## 1. Thông tin nhóm
 
-## 1. Thông tin nhóm
-
 - Tên nhóm:50s
 - Repository URL: https://github.com/Zeustakeshi/Day13-K4-Observability
 - Commit SHA cuối:
@@ -23,16 +21,31 @@
 
 - Evidence correlation ID: middleware `CorrelationIdMiddleware` ([app/middleware.py](../app/middleware.py)) sinh `correlation_id` dạng `req-<uuid8>` từ header `x-request-id` (hoặc tự tạo nếu thiếu), bind vào `structlog` contextvars nên mọi log trong request đều mang cùng ID. Ví dụ trong `data/logs.jsonl`: `req-fd1621f6`, `req-6bdd3833`, `req-e6ed0d53` — mỗi ID lặp lại trên các log entry của cùng một request.
 - Evidence PII redaction: `scrub_event` processor ([app/logging_config.py](../app/logging_config.py)) gọi `scrub_text` ([app/pii.py](../app/pii.py)) trên `payload` và `event` trước khi ghi ra `data/logs.jsonl`, dùng regex cho email, SĐT VN, CCCD, thẻ tín dụng, hộ chiếu, địa chỉ VN. Bằng chứng: [redacted_log_samples.png](evidence/redacted_log_samples.png) — ví dụ `"message_preview": "What is your refund policy? My email is [REDACTED_EMAIL]"`, `"...my phone [REDACTED_PHONE_VN]..."`, `"...credit card [REDACTED_CREDIT_CARD]?"`. `validate_logs.py` xác nhận độc lập: 0 PII leak trên dữ liệu thô.
-- Evidence trace waterfall: [detail_langfuse.png](evidence/detail_langfuse.png) — trace `run` (root, 0.91s, $0.002226) chứa 1 nested generation span `run` (Σ174 tokens, $0.002226), gắn `Session: s02`, `User ID: 95b6504a8bd6`, tags `claude-sonnet-4-5`, `lab`, `qa`. Trang [langfuse.png](evidence/langfuse.png) (Users overview) đối chiếu `user_id_hash` giữa Langfuse và log: `95b6504a8bd6` khớp đúng với `hash_user_id()` trong `data/logs.jsonl`.
+- Evidence trace waterfall: [detail_langfuse.png](evidence/detail_langfuse.png) — trace `run` (root, 0.91s, $0.002226) chứa 1 nested generation span `run` (Σ174 tokens, $0.002226), gắn `Session: s02`, `User ID: 95b6504a8bd6`, tags `claude-sonnet-4-5`, `lab`, `qa`. Trang [langfuse.png](evidence/langfuse.png) (Users overview) đối chiếu `user_id_hash` giữa Langfuse và log: `95b6504a8bd6` khớp đúng với `hash_user_id()` trong `data/logs.jsonl`. Evidence bổ sung cho prompt versioning (CP2): [trace_baseline_v2.jpg](evidence/trace_baseline_v2.jpg), [trace_candidate_v3.jpg](evidence/trace_candidate_v3.jpg).
 - Giải thích một span đáng chú ý: span `generation` trong `LabAgent.run` ([app/agent.py](../app/agent.py)), bọc bằng `@observe(as_type="generation", capture_input=False, capture_output=False)`. Span này bao trọn RAG retrieve (`mock_rag.retrieve`) + gọi LLM (`FakeLLM.generate`), sau đó tự cập nhật metadata (`prompt_name`, `prompt_label`, `prompt_version`, `doc_count`, `query_preview` đã scrub PII) và usage/cost qua `update_current_generation`. `capture_input=False`/`capture_output=False` là chủ đích để tránh nội dung thô (có thể chứa PII) bị Langfuse tự động ghi lại — đúng trong ảnh evidence, `Input: null` và `Output: undefined` vì input/output không được SDK tự capture, chỉ metadata đã qua xử lý mới được gửi lên.
 
 ## 4. Prompt versioning
 
-- Prompt name:
-- Version/label baseline:
-- Version/label candidate:
+- Prompt name: `day13-chat` (type `text`, giữ 3 biến `{{feature}}`, `{{docs}}`, `{{message}}`).
+- Version/label baseline: version 2, label `baseline` (+ `production` sau khi rollback).
+- Version/label candidate: version 3, label `candidate` (từng được gắn thêm `production` tạm thời).
 - Trace ID của mỗi version:
-- Bằng chứng đổi label hoặc rollback:
+  - `baseline` (v2): `cffb6afe0632cf8870fa5a3d293d85f4`
+  - `candidate` (v3): `ef0db4dacb210ab24d93acd91f4ab6d2`
+  - `production` trỏ v3 (sau khi đổi label): `174fd07377ff...` (session `cp2-production-v3-session`)
+  - `production` sau rollback về v2: `e55d596f91b5...` (session `cp2-rollback-session`)
+- Bằng chứng đổi label hoặc rollback: xác nhận qua Langfuse API — trước khi đổi, `production -> v2`;
+  sau `PATCH /api/public/v2/prompts/day13-chat/versions/3 {newLabels:["candidate","production"]}`,
+  `production -> v3`; sau rollback `PATCH .../versions/2 {newLabels:["baseline","production"]}`,
+  `production -> v2` trở lại. 10 trace chạy `load_test.py` ngay sau rollback (session `s01`–`s10`,
+  timestamp `08:43:50–51Z`) đều ghi `prompt_label=production, prompt_version=2`, xác nhận rollback
+  có hiệu lực trên toàn bộ traffic thật, không chỉ 1 request thử. Chi tiết đầy đủ và nội dung
+  prompt trong [evidence/prompt_versions.md](evidence/prompt_versions.md).
+- Ảnh evidence:
+  - [evidence/prompt_v3_candidate_production.jpg](evidence/prompt_v3_candidate_production.jpg) — version #3 mang label `production` (trước rollback)
+  - [evidence/prompt_v2_baseline_production.jpg](evidence/prompt_v2_baseline_production.jpg) — version #2 mang label `production` (sau rollback)
+  - [evidence/trace_baseline_v2.jpg](evidence/trace_baseline_v2.jpg) — trace baseline, chip `Prompt: day13-chat - v2`
+  - [evidence/trace_candidate_v3.jpg](evidence/trace_candidate_v3.jpg) — trace candidate, chip `Prompt: day13-chat - v3`
 
 ## 5. Dashboard, SLO và alerts
 

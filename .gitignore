@@ -7,3 +7,6 @@ data/audit.jsonl
 .env
 .pytest_cache/
 .antigravity/
+
+Huong_Dan_AI_Observability_Dashboard.pdf
+scripts/generate_pdf_guide.py
