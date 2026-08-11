@@ -1,19 +1,21 @@
 alerts:
-  - name: TODO_alert_1
-    severity: TODO
-    condition: TODO
+  - name: Chat response latency SLO burn
+    severity: P1
+    condition: p95_latency_ms > 3000 for 5m
     type: symptom-based
-    owner: TODO
+    owner: Role 3 - Dashboard/SLO/Alert
     runbook: docs/alerts.md#alert-1
-  - name: TODO_alert_2
-    severity: TODO
-    condition: TODO
+
+  - name: Chat error rate above SLO
+    severity: P1
+    condition: error_rate_pct > 2 for 5m
     type: symptom-based
-    owner: TODO
+    owner: Role 3 - Dashboard/SLO/Alert
     runbook: docs/alerts.md#alert-2
-  - name: TODO_alert_3
-    severity: TODO
-    condition: TODO
+
+  - name: Token or cost spike impacting chat sessions
+    severity: P2
+    condition: total_cost_usd > 2.5 OR total_tokens > 50000 for 60m
     type: symptom-based
-    owner: TODO
+    owner: Role 3 - Dashboard/SLO/Alert
     runbook: docs/alerts.md#alert-3

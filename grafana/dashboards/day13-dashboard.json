@@ -1,0 +1,463 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "id": 101,
+      "title": "P95 Latency",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 5, "x": 0, "y": 0 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": { "sparkline": { "show": true } },
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#ff9f1c", "value": null },
+              { "color": "#ff0033", "value": 3000 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "max by () (avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [24h]))",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "title": "Request Traffic",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 5, "x": 0, "y": 4 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": { "sparkline": { "show": true } },
+          "unit": "req/min",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#ff0033", "value": null },
+              { "color": "#ff9f1c", "value": 1 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "sum by () (count_over_time({job=\"day13-logs\"} | json | event=\"request_received\" [24h]))",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 103,
+      "title": "Error Rate",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 5, "x": 0, "y": 8 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": { "sparkline": { "show": true } },
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#ff9f1c", "value": null },
+              { "color": "#ff0033", "value": 2 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "(sum by () (count_over_time({job=\"day13-logs\"} | json | event=\"request_failed\" [24h])) / sum by () (count_over_time({job=\"day13-logs\"} | json | event=\"request_received\" [24h]))) * 100",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 104,
+      "title": "Total Cost",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 5, "x": 0, "y": 12 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": { "sparkline": { "show": true } },
+          "unit": "currencyUSD",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#ff9f1c", "value": null },
+              { "color": "#ff0033", "value": 2.5 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "sum by () (sum_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap cost_usd [24h]))",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 105,
+      "title": "Quality Score",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 5, "x": 0, "y": 16 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": { "sparkline": { "show": true } },
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#ff0033", "value": null },
+              { "color": "#ff9f1c", "value": 0.75 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "avg by () (avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap quality_score [24h]))",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "title": "Latency percentiles",
+      "type": "timeseries",
+      "gridPos": { "h": 10, "w": 12, "x": 5, "y": 0 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 3,
+            "fillOpacity": 25,
+            "gradientMode": "opacity",
+            "thresholdsStyle": { "mode": "line+area" }
+          },
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "transparent", "value": null },
+              { "color": "rgba(255, 0, 51, 0.25)", "value": 3000 }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "P50" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#3b82f6", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "P95" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#ff9f1c", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "P99" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#ff0033", "mode": "fixed" } }]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "avg by () (avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [24h]))",
+          "legendFormat": "P50",
+          "queryType": "range",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "max by () (avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [24h]))",
+          "legendFormat": "P95",
+          "queryType": "range",
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "max by () (avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [24h]))",
+          "legendFormat": "P99",
+          "queryType": "range",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Request traffic",
+      "type": "timeseries",
+      "gridPos": { "h": 10, "w": 7, "x": 17, "y": 0 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "#3b82f6", "mode": "fixed" },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 3,
+            "fillOpacity": 40,
+            "gradientMode": "opacity"
+          },
+          "unit": "req/min",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#ff0033", "value": null },
+              { "color": "#3b82f6", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "sum by () (count_over_time({job=\"day13-logs\"} | json | event=\"request_received\" [24h]))",
+          "legendFormat": "Request Rate",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Error rate and breakdown",
+      "type": "barchart",
+      "gridPos": { "h": 10, "w": 7, "x": 5, "y": 10 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "#3b82f6", "mode": "fixed" },
+          "custom": {},
+          "unit": "short"
+        }
+      },
+      "options": {
+        "orientation": "vertical",
+        "stacking": "none",
+        "showValue": "auto",
+        "barWidth": 0.6
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "sum by (error_type) (count_over_time({job=\"day13-logs\"} | json | event=\"request_failed\" [24h]))",
+          "legendFormat": "{{error_type}}",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Cost over time",
+      "type": "timeseries",
+      "gridPos": { "h": 10, "w": 6, "x": 12, "y": 10 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "#ff9f1c", "mode": "fixed" },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 3,
+            "fillOpacity": 35,
+            "gradientMode": "opacity"
+          },
+          "unit": "currencyUSD",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "transparent", "value": null },
+              { "color": "rgba(255, 0, 51, 0.25)", "value": 2.5 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "sum by () (sum_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap cost_usd [24h]))",
+          "legendFormat": "Cost ($)",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Input and output tokens",
+      "type": "barchart",
+      "gridPos": { "h": 10, "w": 3, "x": 18, "y": 10 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Tokens In" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#3b82f6", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Tokens Out" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#ff9f1c", "mode": "fixed" } }]
+          }
+        ]
+      },
+      "options": {
+        "orientation": "vertical",
+        "stacking": "none",
+        "showValue": "auto",
+        "barWidth": 0.6
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "sum by () (sum_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap tokens_in [24h]))",
+          "legendFormat": "Tokens In",
+          "queryType": "instant",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "sum by () (sum_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap tokens_out [24h]))",
+          "legendFormat": "Tokens Out",
+          "queryType": "instant",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Quality proxy",
+      "type": "gauge",
+      "gridPos": { "h": 10, "w": 3, "x": 21, "y": 10 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#ff0033", "value": null },
+              { "color": "#ff9f1c", "value": 0.5 },
+              { "color": "#3b82f6", "value": 0.75 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "avg by () (avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap quality_score [24h]))",
+          "legendFormat": "Quality Score",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["day13", "ai-observability"],
+  "time": { "from": "now-60m", "to": "now" },
+  "timepicker": { "refresh_intervals": ["5s", "10s", "30s", "1m"] },
+  "title": "Day 13 AI Observability",
+  "uid": "day13-ai-observability"
+}
