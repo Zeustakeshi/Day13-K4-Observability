@@ -84,4 +84,8 @@ Với mỗi thành viên, ghi rõ nhiệm vụ và link commit/PR tương ứng.
 
 | Thành viên | Phần việc | Commit/PR | Điều đã học |
 | ---------- | --------- | --------- | ----------- |
-|            |           |           |             |
+| Thành viên A | Owner Logging & PII: Middleware correlation_id, log enrichment, processor scrub PII | `main` branch | Hiểu sâu về Structlog processors, contextvars và cơ chế khử PII tự động |
+| Thành viên B | Owner Tracing & Prompt Versioning: Quản lý Langfuse prompts, versioning & rollback | `main` branch | Nắm vững quy trình Prompt Engineering, A/B Testing và Rollback an toàn trên Langfuse |
+| Thành viên C | Owner Dashboard, SLO & Alerts: Xây dựng 6 Grafana Panels, Loki queries, SLO thresholds | `main` branch | Làm chủ LogQL, thiết kế Dashboard chuẩn contract và định nghĩa SLO burn rate |
+| Thành viên D | Owner Incident & Report: Xây dựng Runbooks, điều tra root cause, tổng hợp Báo cáo | `main` branch | Kỹ năng liên kết Metrics → Traces → Logs để tìm nguyên nhân gốc rễ sự cố nhanh chóng |
+
