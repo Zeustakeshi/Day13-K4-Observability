@@ -51,6 +51,7 @@
 
 - Kết quả `validate_dashboard.py`: **`HỢP LỆ: 6/6 panel`** có trong dashboard contract (xem `config/dashboard.yaml`).
 - Evidence dashboard: Grafana Dashboard tự động nạp 6 panel chuẩn contract từ `data/logs.jsonl` qua Loki (`http://localhost:3000/d/day13-ai-observability/day-13-ai-observability-dashboard`):
+  ![Grafana Dashboard Evidence](evidence/dashboard.png)
   1. Latency percentiles (P50, P95, P99) với threshold line 3000 ms.
   2. Request traffic rate (req/min) với threshold line 1 req/min.
   3. Error rate (%) và breakdown theo `error_type` (Bar/Donut chart) với threshold line 2%.
