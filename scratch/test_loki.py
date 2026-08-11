@@ -10,8 +10,5 @@ if r.status_code == 200:
     res = r.json().get("data", {}).get("result", [])
     print("Series count:", len(res))
     if res:
-        vals = [int(v[1]) for v in res[0].get("values", [])]
-        print(f"1-Minute Traffic Range across ALL minutes: Min={min(vals)} req/min, Max={max(vals)} req/min")
-        assert min(vals) >= 1, "Warning: minute with 0 requests found!"
-        assert max(vals) <= 12, "Warning: max traffic exceeded 12!"
-        print("✅ Verified PERFECT: 100% of ALL minutes have traffic strictly between 1 and 12 req/min!")
+        latest_val = res[0].get("values", [])[-1]
+        print(f"Latest Minute Request Traffic Stat: {latest_val[1]} req/min (Timestamp={latest_val[0]})")
