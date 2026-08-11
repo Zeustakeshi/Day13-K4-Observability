@@ -31,10 +31,23 @@
 
 ## 5. Dashboard, SLO và alerts
 
-- Kết quả `validate_dashboard.py`:
-- Evidence dashboard:
+- Kết quả `validate_dashboard.py`: **`HỢP LỆ: 6/6 panel`** có trong dashboard contract (xem `config/dashboard.yaml`).
+- Evidence dashboard: Grafana Dashboard tự động nạp 6 panel chuẩn contract từ `data/logs.jsonl` qua Loki (`http://localhost:3000/d/day13-ai-observability/day-13-ai-observability-dashboard`):
+  1. Latency percentiles (P50, P95, P99) với threshold line 3000 ms.
+  2. Request traffic rate (req/min) với threshold line 1 req/min.
+  3. Error rate (%) và breakdown theo `error_type` (Bar/Donut chart) với threshold line 2%.
+  4. Cost over time ($ USD) với threshold line $2.50.
+  5. Input & output tokens (Tokens In vs Tokens Out) với threshold 50,000 tokens.
+  6. Quality proxy (Mean quality score gauge) với threshold line 0.75.
 - SLO đã chọn và lý do:
-- Alert rules và runbook:
+  - `latency_p95_ms`: Objective 3000ms, target 99.5% (đảm bảo trải nghiệm người dùng không bị chậm trễ khi chat).
+  - `error_rate_pct`: Objective 2%, target 99.0% (giữ tỷ lệ phản hồi lỗi ở mức thấp chấp nhận được).
+  - `daily_cost_usd`: Objective $2.50, target 100.0% (kiểm soát ngân sách vận hành API LLM).
+  - `quality_score_avg`: Objective 0.75, target 95.0% (đảm bảo chất lượng câu trả lời từ RAG/LLM).
+- Alert rules và runbook: Cấu hình 3 alert rules trong [config/alert_rules.yaml](../config/alert_rules.yaml) tương ứng với runbook chi tiết trong [docs/alerts.md](../docs/alerts.md):
+  1. `Chat response latency SLO burn` (P1): `p95_latency_ms > 3000 for 5m` -> Runbook `docs/alerts.md#alert-1`.
+  2. `Chat error rate above SLO` (P1): `error_rate_pct > 2 for 5m` -> Runbook `docs/alerts.md#alert-2`.
+  3. `Token or cost spike impacting chat sessions` (P2): `total_cost_usd > 2.5 OR total_tokens > 50000 for 60m` -> Runbook `docs/alerts.md#alert-3`.
 
 ## 6. Điều tra challenge
 
