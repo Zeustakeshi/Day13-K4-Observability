@@ -12,10 +12,10 @@ Ghi chú cho incident report: theo RUBRIC.md mục A2/B1, mỗi alert khi điề
 - Điều kiện và thời gian duy trì: P95 latency > 3000 ms trong 5 phút hoặc 3 cửa sổ refresh liên tiếp.
 - Ảnh hưởng tới người dùng: Người dùng thấy câu trả lời chậm, dễ retry hoặc bỏ phiên chat.
 - Ba bước kiểm tra đầu tiên:
-  1. Mở dashboard panel latency, ghi lại khoảng thời gian P95/P99 tăng và một request chậm tiêu biểu.
-  2. Mở trace của request chậm, lưu trace ID và span chiếm nhiều thời gian nhất.
-  3. Tìm log `response_sent` có cùng correlation ID, đối chiếu `latency_ms`, `feature`, `model`, `session_id` và metadata prompt.
-- Mitigation tạm thời: Rollback prompt label nếu trace cho thấy phiên bản prompt mới làm tăng token/latency; giảm concurrency hoặc tắt kịch bản incident đang bật; thông báo D dùng trace ID và log line này để viết incident report.
+  1. C mở dashboard panel latency, ghi lại time window P95/P99 vượt ngưỡng, giá trị đỉnh và ảnh panel có SLO line 3000 ms.
+  2. A chọn một request chậm trong đúng time window đó, mở trace tương ứng, lưu trace ID và span chiếm nhiều thời gian nhất.
+  3. A/C tìm log `response_sent` có cùng correlation ID, đối chiếu `latency_ms`, `feature`, `model`, `session_id` và metadata prompt để bàn giao cho D.
+- Mitigation tạm thời: Nếu trace cho thấy prompt/version mới làm tăng token hoặc latency, rollback prompt label về baseline; nếu do tải lab tăng đột biến, giảm concurrency/load test; nếu do incident practice/challenge đang bật, tắt theo lệnh disable sau khi đã chụp đủ evidence. C xác nhận lại P95 quay xuống dưới SLO trên dashboard, A bàn giao trace ID và log line cho D viết incident report.
 - Owner: A - Dashboard/SLO/Alert; phối hợp D - Incident/Report tại CP3.
 
 ## Alert 2
@@ -26,10 +26,10 @@ Ghi chú cho incident report: theo RUBRIC.md mục A2/B1, mỗi alert khi điề
 - Điều kiện và thời gian duy trì: Error rate > 2% trong 5 phút hoặc có ít nhất 3 request thất bại liên tiếp trong load test.
 - Ảnh hưởng tới người dùng: Người dùng không nhận được câu trả lời, API trả lỗi thay vì phản hồi chat.
 - Ba bước kiểm tra đầu tiên:
-  1. Mở dashboard panel errors, ghi lại error rate và `error_type` nổi bật.
-  2. Mở trace của một request lỗi, lưu trace ID và span thất bại.
-  3. Tìm log `request_failed` có cùng correlation ID, ghi lại `error_type`, `message_preview` đã redact và metadata request.
-- Mitigation tạm thời: Tắt dependency/kịch bản gây lỗi nếu đang trong lab incident; dùng fallback an toàn cho request mới; giữ lại trace ID và log line để chứng minh root cause trong report.
+  1. C mở dashboard panel errors, ghi lại time window error rate vượt 2%, số request failed và `error_type` nổi bật.
+  2. A mở trace của một request lỗi trong cùng time window, lưu trace ID, span thất bại và thông tin service/generation liên quan.
+  3. A/C tìm log `request_failed` có cùng correlation ID, ghi lại `error_type`, `message_preview` đã redact và metadata request để D chứng minh root cause.
+- Mitigation tạm thời: Nếu lỗi đến từ dependency/tool trong lab, bật fallback hoặc tắt incident đang gây lỗi sau khi đã lưu evidence; nếu lỗi do prompt/config mới, rollback thay đổi gần nhất; nếu lỗi lan rộng, tạm giảm traffic load test để bảo vệ demo. C theo dõi error rate trở về <= 2%, A cập nhật runbook/evidence cho D.
 - Owner: A - Dashboard/SLO/Alert; phối hợp D - Incident/Report tại CP3.
 
 ## Alert 3
@@ -40,8 +40,8 @@ Ghi chú cho incident report: theo RUBRIC.md mục A2/B1, mỗi alert khi điề
 - Điều kiện và thời gian duy trì: Tổng cost > 2.5 USD trong 60 phút hoặc tổng token > 50000 trong 60 phút; cảnh báo sớm khi tốc độ tăng token/cost cao bất thường trong 10 phút.
 - Ảnh hưởng tới người dùng: Câu trả lời có thể chậm hơn, quota/cost tăng nhanh, demo có nguy cơ hết ngân sách hoặc bị throttle.
 - Ba bước kiểm tra đầu tiên:
-  1. Mở dashboard panel cost và tokens, ghi lại thời điểm bắt đầu tăng và request/session đóng góp nhiều nhất.
-  2. Mở trace của request có token/cost cao, lưu trace ID và metadata `prompt_name`, `prompt_label`, `prompt_version`.
-  3. Tìm log `response_sent` cùng correlation ID, đối chiếu `tokens_in`, `tokens_out`, `cost_usd`, `quality_score` và kiểm tra không có PII trong preview.
-- Mitigation tạm thời: Rollback prompt label về bản baseline nếu prompt candidate làm phình token; giới hạn input quá dài hoặc giảm batch load test; bàn giao trace ID/log line cho D để chứng minh Metrics -> Traces -> Logs.
+  1. C mở dashboard panel cost và tokens, ghi lại thời điểm bắt đầu tăng, tổng cost/token hiện tại và ảnh threshold 2.5 USD/50000 tokens.
+  2. A chọn request/session đóng góp token hoặc cost cao nhất, mở trace và lưu trace ID cùng metadata `prompt_name`, `prompt_label`, `prompt_version`.
+  3. A/C tìm log `response_sent` cùng correlation ID, đối chiếu `tokens_in`, `tokens_out`, `cost_usd`, `quality_score` và kiểm tra preview đã redact PII trước khi chuyển cho D.
+- Mitigation tạm thời: Rollback prompt label về baseline nếu candidate làm phình token; giới hạn input quá dài hoặc giảm batch load test; nếu cost spike là incident đang bật, tắt sau khi đã lưu metric/trace/log evidence. C xác nhận token/cost không tăng tiếp trên dashboard, A bàn giao trace ID/log line để D chứng minh Metrics -> Traces -> Logs.
 - Owner: A - Dashboard/SLO/Alert; phối hợp D - Incident/Report tại CP3.
