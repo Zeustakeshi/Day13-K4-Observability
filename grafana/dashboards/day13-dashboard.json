@@ -95,6 +95,7 @@
         "defaults": {
           "color": { "mode": "thresholds" },
           "custom": { "sparkline": { "show": true } },
+          "noValue": "0%",
           "unit": "percent",
           "thresholds": {
             "mode": "absolute",
@@ -315,6 +316,7 @@
         "defaults": {
           "color": { "fixedColor": "#3b82f6", "mode": "fixed" },
           "custom": {},
+          "noValue": "No Errors (0%)",
           "unit": "short"
         }
       },
