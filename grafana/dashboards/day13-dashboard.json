@@ -318,13 +318,19 @@
           "unit": "short"
         }
       },
+      "options": {
+        "orientation": "vertical",
+        "stacking": "none",
+        "showValue": "auto",
+        "barWidth": 0.6
+      },
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "Loki" },
           "editorMode": "code",
           "expr": "sum by (error_type) (count_over_time({job=\"day13-logs\"} | json | event=\"request_failed\" [24h]))",
           "legendFormat": "{{error_type}}",
-          "queryType": "range",
+          "queryType": "instant",
           "refId": "A"
         }
       ]
@@ -389,13 +395,19 @@
           }
         ]
       },
+      "options": {
+        "orientation": "vertical",
+        "stacking": "none",
+        "showValue": "auto",
+        "barWidth": 0.6
+      },
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "Loki" },
           "editorMode": "code",
           "expr": "sum by () (sum_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap tokens_in [24h]))",
           "legendFormat": "Tokens In",
-          "queryType": "range",
+          "queryType": "instant",
           "refId": "A"
         },
         {
@@ -403,7 +415,7 @@
           "editorMode": "code",
           "expr": "sum by () (sum_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap tokens_out [24h]))",
           "legendFormat": "Tokens Out",
-          "queryType": "range",
+          "queryType": "instant",
           "refId": "B"
         }
       ]
