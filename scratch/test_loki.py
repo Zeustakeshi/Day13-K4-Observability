@@ -1,7 +1,15 @@
 import httpx
 
-r_in = httpx.get("http://localhost:3100/loki/api/v1/query", params={"query": 'sum by () (sum_over_time({job="day13-logs"} | json | event="response_sent" | unwrap tokens_in [24h]))'})
-r_out = httpx.get("http://localhost:3100/loki/api/v1/query", params={"query": 'sum by () (sum_over_time({job="day13-logs"} | json | event="response_sent" | unwrap tokens_out [24h]))'})
+r = httpx.get("http://localhost:3100/loki/api/v1/query_range", params={
+    "query": 'sum by () (count_over_time({job="day13-logs"} | json | event="request_received" [24h]))',
+    "step": "60s"
+}, timeout=5.0)
 
-print("Tokens In (Instant):", r_in.json().get("data", {}).get("result", []))
-print("Tokens Out (Instant):", r_out.json().get("data", {}).get("result", []))
+print("Status:", r.status_code)
+if r.status_code == 200:
+    res = r.json().get("data", {}).get("result", [])
+    print("Series count:", len(res))
+    if res:
+        print("Values count:", len(res[0].get("values", [])))
+        print("First 2 values:", res[0].get("values", [])[:2])
+        print("Last 2 values:", res[0].get("values", [])[-2:])

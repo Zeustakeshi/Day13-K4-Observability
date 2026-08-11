@@ -79,7 +79,7 @@
         {
           "datasource": { "type": "loki", "uid": "Loki" },
           "editorMode": "code",
-          "expr": "sum by () (count_over_time({job=\"day13-logs\"} | json | event=\"request_received\" [24h]))",
+          "expr": "sum by () (count_over_time({job=\"day13-logs\"} | json | event=\"request_received\" [2m]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -245,7 +245,7 @@
         {
           "datasource": { "type": "loki", "uid": "Loki" },
           "editorMode": "code",
-          "expr": "avg by () (avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [24h]))",
+          "expr": "avg by () (avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [2m]))",
           "legendFormat": "P50",
           "queryType": "range",
           "refId": "A"
@@ -253,7 +253,7 @@
         {
           "datasource": { "type": "loki", "uid": "Loki" },
           "editorMode": "code",
-          "expr": "max by () (avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [24h]))",
+          "expr": "max by () (avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [2m]))",
           "legendFormat": "P95",
           "queryType": "range",
           "refId": "B"
@@ -261,7 +261,7 @@
         {
           "datasource": { "type": "loki", "uid": "Loki" },
           "editorMode": "code",
-          "expr": "max by () (avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [24h]))",
+          "expr": "max by () (avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [2m]))",
           "legendFormat": "P99",
           "queryType": "range",
           "refId": "C"
@@ -299,7 +299,7 @@
         {
           "datasource": { "type": "loki", "uid": "Loki" },
           "editorMode": "code",
-          "expr": "sum by () (count_over_time({job=\"day13-logs\"} | json | event=\"request_received\" [24h]))",
+          "expr": "sum by () (count_over_time({job=\"day13-logs\"} | json | event=\"request_received\" [2m]))",
           "legendFormat": "Request Rate",
           "queryType": "range",
           "refId": "A"
@@ -369,7 +369,7 @@
         {
           "datasource": { "type": "loki", "uid": "Loki" },
           "editorMode": "code",
-          "expr": "sum by () (sum_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap cost_usd [24h]))",
+          "expr": "sum by () (sum_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap cost_usd [2m]))",
           "legendFormat": "Cost ($)",
           "queryType": "range",
           "refId": "A"
