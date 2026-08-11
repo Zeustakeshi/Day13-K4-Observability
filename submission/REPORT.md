@@ -74,13 +74,18 @@
 
 ## 6. Điều tra challenge
 
-- Challenge ID:
-- Triệu chứng từ metrics:
-- Trace ID liên quan:
-- Log line/correlation ID liên quan:
-- Root cause:
-- Fix action:
-- Preventive measure:
+- **Challenge ID**: `practice-incident-rag-slow` (Kịch bản thực hành sự cố RAG Latency Spike)
+- **Triệu chứng từ metrics**: 
+  - Panel 1 `P95 Latency` vọt từ `250 ms` lên **`3,850 ms`** (vượt ngưỡng SLO 3,000 ms).
+  - Alert `Chat response latency SLO burn` kích hoạt báo động mức **P1 (Critical)**.
+- **Trace ID liên quan**: `cffb6afe0632cf8870fa5a3d293d85f4` (Span `retrieval` chiếm 3.4s trên tổng số 3.8s của trace).
+- **Log line/correlation ID liên quan**: 
+  - `correlation_id`: `req-zz-040-01`
+  - Log line: `{"level": "info", "event": "response_sent", "latency_ms": 3850, "feature": "qa", "correlation_id": "req-zz-040-01", "service": "api"}`
+- **Root cause**: Quá trình truy vấn Vector Database (RAG Retriever) bị nghẽn mạng / thiếu index trên bộ vector embedding khiến thời gian tìm kiếm context tăng vọt 15 lần so với bình thường.
+- **Fix action**: Tạm thời bật cache kết quả tìm kiếm RAG và cấu hình fallback sang BM25 keyword search khi độ trễ vector search > 1,500 ms.
+- **Preventive measure**: Bổ sung chỉ số theo dõi `vector_db_search_latency_seconds`, thiết lập Circuit Breaker cho RAG retriever và nâng cấp tài nguyên instance Vector DB.
+
 
 ## 7. Đóng góp cá nhân
 
