@@ -19,7 +19,7 @@
 - Sau Checkpoint 1 `validate_logs.py`: **100/100** — 21 log records, 0 missing required fields, 0 missing enrichment, 10 unique correlation IDs, 0 PII leak. Evidence: [validate_logs_checkpoint1.png](evidence/validate_logs_checkpoint1.png).
 - Tổng số traces: 6 traces / 12 observations trên Langfuse (user `95b6504a8bd6`, xem [detail_langfuse.png](evidence/detail_langfuse.png)).
 - Số PII leak còn lại: 0 (theo `validate_logs.py`, kiểm tra độc lập bằng regex email/phone/CCCD/thẻ tín dụng trên toàn bộ record thô).
-- Link/đường dẫn dashboard: _(điền ở mục 5 sau khi hoàn tất CP checkpoint dashboard)_
+- Link/đường dẫn dashboard: xem chi tiết và ảnh chụp tại mục 5 — [evidence/dashboard.png](evidence/dashboard.png).
 
 ## 3. Logging và tracing
 
@@ -36,8 +36,8 @@
 - Trace ID của mỗi version:
   - `baseline` (v2): `cffb6afe0632cf8870fa5a3d293d85f4`
   - `candidate` (v3): `ef0db4dacb210ab24d93acd91f4ab6d2`
-  - `production` trỏ v3 (sau khi đổi label): `174fd07377ff...` (session `cp2-production-v3-session`)
-  - `production` sau rollback về v2: `e55d596f91b5...` (session `cp2-rollback-session`)
+  - `production` trỏ v3 (sau khi đổi label): `174fd07377ff8747864f466da9ceb41b` (session `cp2-production-v3-session`)
+  - `production` sau rollback về v2: `e55d596f91b58f2e175134bcdd87ed82` (session `cp2-rollback-session`)
 - Bằng chứng đổi label hoặc rollback: xác nhận qua Langfuse API — trước khi đổi, `production -> v2`;
   sau `PATCH /api/public/v2/prompts/day13-chat/versions/3 {newLabels:["candidate","production"]}`,
   `production -> v3`; sau rollback `PATCH .../versions/2 {newLabels:["baseline","production"]}`,
@@ -89,34 +89,34 @@
 ## 6. Điều tra challenge
 
 - Challenge ID: `day13-k4-observability-v1` (`config/challenge.json`), incident chính thức `rag_slow`, affected feature `monitoring`, latency threshold `2000 ms`.
-- Triệu chứng từ metrics: lọc `data/logs.jsonl` theo session `k4-challenge-*` cho thấy 20/20 response challenge có `latency_ms > 2000`. P95 latency của nhóm response challenge là khoảng **2674 ms**, max **3729 ms**, average **2706.8 ms**. Không có log `level=error`, nên error rate trong tập challenge là **0%**; triệu chứng chính là latency SLO breach, không phải lỗi 5xx.
-- Trace ID / Correlation ID đại diện: correlation ID đại diện `req-07ccb3ff` (`session_id=k4-challenge-s05`, `feature=monitoring`, `model=claude-sonnet-4-5`, `latency_ms=3729`). Trace ID thật cần lấy từ Langfuse bằng cách lọc trace theo metadata/correlation ID `req-07ccb3ff` hoặc session `k4-challenge-s05`, rồi điền vào đây trước khi nộp nếu có ảnh trace challenge.
+- Triệu chứng từ metrics: lọc `data/logs.jsonl` theo session `k4-challenge-*` cho thấy 5/5 response challenge có `latency_ms > 2000` (2650 ms, 2650 ms, 2650 ms, 2650 ms, 4990 ms). Max **4990 ms** (request đầu tiên ngay sau khi bật incident, `k4-challenge-s02`), min **2650 ms**, average **3118 ms**. Không có log `level=error`, nên error rate trong tập challenge là **0%**; triệu chứng chính là latency SLO breach, không phải lỗi 5xx.
+- Trace ID / Correlation ID đại diện: correlation ID đại diện `req-2b0580c4` (`session_id=k4-challenge-s05`, `feature=monitoring`, `model=claude-sonnet-4-5`, `latency_ms=2650`). Trace tương ứng trên Langfuse: xem [evidence/trace_challenge_k4-s05.jpg](evidence/trace_challenge_k4-s05.jpg), Trace ID `a43aa02980160f4b3630358f5a0f7f40` (`Session: k4-challenge-s05`, `User ID: 0c04335fe098`, duration 2.65s).
 - Log line/correlation ID liên quan:
-  - Dòng bật incident trong log: `data/logs.jsonl:284`
+  - Dòng bật incident trong log: `data/logs.jsonl:24`
 
 ```json
-{"service": "control", "payload": {"name": "rag_slow"}, "event": "incident_enabled", "correlation_id": "req-1ecee6de", "level": "warning", "ts": "2026-08-11T10:00:41.874217Z"}
+{"service": "control", "payload": {"name": "rag_slow"}, "event": "incident_enabled", "correlation_id": "req-c0a0379d", "level": "warning", "ts": "2026-08-11T16:13:48.863912Z"}
 ```
 
-  - Request chậm đại diện: `data/logs.jsonl:285`
+  - Request chậm đại diện: `data/logs.jsonl:29`
 
 ```json
-{"service": "api", "payload": {"message_preview": "Describe how to prove a slow span is the root cause."}, "event": "request_received", "env": "dev", "correlation_id": "req-07ccb3ff", "user_id_hash": "0c04335fe098", "session_id": "k4-challenge-s05", "feature": "monitoring", "model": "claude-sonnet-4-5", "level": "info", "ts": "2026-08-11T10:01:14.555175Z"}
+{"service": "api", "payload": {"message_preview": "Describe how to prove a slow span is the root cause."}, "event": "request_received", "env": "dev", "model": "claude-sonnet-4-5", "session_id": "k4-challenge-s05", "feature": "monitoring", "user_id_hash": "0c04335fe098", "correlation_id": "req-2b0580c4", "level": "info", "ts": "2026-08-11T16:14:02.161193Z"}
 ```
 
-  - Response chứng minh latency vượt ngưỡng: `data/logs.jsonl:286`
+  - Response chứng minh latency vượt ngưỡng: `data/logs.jsonl:30`
 
 ```json
-{"service": "api", "latency_ms": 3729, "tokens_in": 92, "tokens_out": 107, "cost_usd": 0.001881, "quality_score": 0.8, "payload": {"answer_preview": "Starter answer. Teams should improve this output logic and add better quality ch..."}, "event": "response_sent", "env": "dev", "correlation_id": "req-07ccb3ff", "user_id_hash": "0c04335fe098", "session_id": "k4-challenge-s05", "feature": "monitoring", "model": "claude-sonnet-4-5", "level": "info", "ts": "2026-08-11T10:01:19.356455Z"}
+{"service": "api", "latency_ms": 2650, "tokens_in": 92, "tokens_out": 120, "cost_usd": 0.002076, "quality_score": 0.8, "payload": {"answer_preview": "Starter answer. Teams should improve this output logic and add better quality ch..."}, "event": "response_sent", "env": "dev", "model": "claude-sonnet-4-5", "session_id": "k4-challenge-s05", "feature": "monitoring", "user_id_hash": "0c04335fe098", "correlation_id": "req-2b0580c4", "level": "info", "ts": "2026-08-11T16:14:04.814186Z"}
 ```
-- Root cause: `rag_slow` được bật ngay trước loạt request challenge (`incident_enabled` tại `10:00:41Z`). Trong code, khi `STATE["rag_slow"]` bật, `app/mock_rag.py` thêm `time.sleep(2.5)` trong bước retrieve; vì vậy các request feature `monitoring` của session `k4-challenge-*` đều tăng latency lên khoảng 2.65s-3.73s trong khi không phát sinh error. Chuỗi chứng minh: Metrics phát hiện P95 latency vượt 2000 ms -> Trace của request `req-07ccb3ff` cần cho thấy span retrieve/generation chậm -> Logs xác nhận cùng correlation ID có `latency_ms=3729`, `feature=monitoring`, `model=claude-sonnet-4-5`.
+- Root cause: `rag_slow` được bật ngay trước loạt request challenge (`incident_enabled` tại `16:13:48Z`). Trong code, khi `STATE["rag_slow"]` bật, `app/mock_rag.py` thêm `time.sleep(2.5)` trong bước retrieve; vì vậy các request feature `monitoring` của session `k4-challenge-*` đều tăng latency lên khoảng 2.65s (request đầu tiên 4.99s do cộng thêm thời gian khởi động kết nối) trong khi không phát sinh error. Chuỗi chứng minh: Metrics phát hiện P95 latency vượt 2000 ms -> Trace của request `req-2b0580c4` cần cho thấy span retrieve/generation chậm -> Logs xác nhận cùng correlation ID có `latency_ms=2650`, `feature=monitoring`, `model=claude-sonnet-4-5`.
 - Fix action: tắt incident `rag_slow` sau khi chụp đủ evidence bằng `python scripts/inject_incident.py --scenario rag_slow --disable` hoặc endpoint disable tương ứng; sau đó chạy lại load test ngắn và xác nhận P95 quay về dưới ngưỡng 2000/3000 ms.
 - Preventive measure: giữ alert `Chat response latency SLO burn` cho P95 latency, bắt buộc dashboard có SLO line và runbook yêu cầu lưu metric window + trace ID + log line cùng correlation ID. Với hệ thống thật, thêm timeout/budget cho bước retrieve, cache kết quả truy vấn phổ biến, và theo dõi riêng latency theo span để phát hiện RAG/retrieval chậm trước khi ảnh hưởng toàn bộ request.
 
 ### Câu hỏi phản biện CP3
 
 - Vì sao kết luận root cause là `rag_slow` chứ không phải LLM hoặc lỗi API? Vì log challenge không có `level=error`, token/cost không tăng bất thường, model không đổi, nhưng tất cả request `feature=monitoring` sau dòng `incident_enabled` của `rag_slow` đều có latency >2000 ms. Code `app/mock_rag.py` cũng chỉ ra `rag_slow` thêm `time.sleep(2.5)` ở bước retrieve, khớp với mức tăng latency quan sát được.
-- Correlation ID khác trace ID thế nào và dùng chúng ra sao trong incident này? Correlation ID (`req-07ccb3ff`) đi qua log/API để nối `request_received` với `response_sent`; trace ID là định danh trong Langfuse để mở waterfall/span. Khi điều tra, dùng metrics tìm request chậm, mở trace để xem span chậm, rồi dùng correlation ID trong trace/log để chứng minh log line JSON thô thuộc đúng request đó.
+- Correlation ID khác trace ID thế nào và dùng chúng ra sao trong incident này? Correlation ID (`req-2b0580c4`) đi qua log/API để nối `request_received` với `response_sent`; trace ID là định danh trong Langfuse để mở waterfall/span. Khi điều tra, dùng metrics tìm request chậm, mở trace để xem span chậm, rồi dùng correlation ID trong trace/log để chứng minh log line JSON thô thuộc đúng request đó.
 
 ## 7. Đóng góp cá nhân
 
