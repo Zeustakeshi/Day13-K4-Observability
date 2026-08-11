@@ -2,10 +2,14 @@
 
 ## 1. Thông tin nhóm
 
-- Tên nhóm:50s
+- Tên nhóm: 50s
 - Repository URL: https://github.com/Zeustakeshi/Day13-K4-Observability
-- Commit SHA cuối:
+- Commit SHA cuối: `73faf215e56029b87fed064c049975dd1d8e9872`
 - Thành viên và vai trò:
+  1. **Phạm Minh Hiếu** - MSV: `2A202601562` - **Role A** (Logging & PII)
+  2. **Đặng Nguyên Giáp** - MSV: `2A202601486` - **Role B** (Tracing & Prompt Versioning)
+  3. **Mai Tuấn Quang** - MSV: `2A202601484` - **Role C** (Dashboard, SLO & Alert)
+  4. **Nguyễn Thị Thu Trang** - MSV: `2A202601172` - **Role D** (Incident, Report & Demo)
 
 ## 2. Kết quả kỹ thuật
 
@@ -84,8 +88,8 @@ Với mỗi thành viên, ghi rõ nhiệm vụ và link commit/PR tương ứng.
 
 | Thành viên | Phần việc | Commit/PR | Điều đã học |
 | ---------- | --------- | --------- | ----------- |
-| Thành viên A | Owner Logging & PII: Middleware correlation_id, log enrichment, processor scrub PII | `main` branch | Hiểu sâu về Structlog processors, contextvars và cơ chế khử PII tự động |
-| Thành viên B | Owner Tracing & Prompt Versioning: Quản lý Langfuse prompts, versioning & rollback | `main` branch | Nắm vững quy trình Prompt Engineering, A/B Testing và Rollback an toàn trên Langfuse |
-| Thành viên C | Owner Dashboard, SLO & Alerts: Xây dựng 6 Grafana Panels, Loki queries, SLO thresholds | `main` branch | Làm chủ LogQL, thiết kế Dashboard chuẩn contract và định nghĩa SLO burn rate |
-| Thành viên D | Owner Incident & Report: Xây dựng Runbooks, điều tra root cause, tổng hợp Báo cáo | `main` branch | Kỹ năng liên kết Metrics → Traces → Logs để tìm nguyên nhân gốc rễ sự cố nhanh chóng |
+| **Phạm Minh Hiếu** (2A202601562) | **Role A** - Logging & PII: Middleware correlation_id, log enrichment, processor scrub PII | `main` branch | Hiểu sâu về Structlog processors, contextvars và cơ chế khử PII tự động |
+| **Đặng Nguyên Giáp** (2A202601486) | **Role B** - Tracing & Prompt Versioning: Quản lý Langfuse prompts, versioning & rollback | `main` branch | Nắm vững quy trình Prompt Engineering, A/B Testing và Rollback an toàn trên Langfuse |
+| **Mai Tuấn Quang** (2A202601484) | **Role C** - Dashboard, SLO & Alert: Xây dựng 6 Grafana Panels, Loki queries, SLO thresholds | `main` branch | Làm chủ LogQL, thiết kế Dashboard chuẩn contract và định nghĩa SLO burn rate |
+| **Nguyễn Thị Thu Trang** (2A202601172) | **Role D** - Incident, Report & Demo: Xây dựng Runbooks, điều tra root cause, tổng hợp Báo cáo | `main` branch | Kỹ năng liên kết Metrics → Traces → Logs để tìm nguyên nhân gốc rễ sự cố nhanh chóng |
 
