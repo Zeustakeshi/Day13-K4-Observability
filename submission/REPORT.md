@@ -53,39 +53,70 @@
 
 ## 5. Dashboard, SLO và alerts
 
-- Kết quả `validate_dashboard.py`: **`HỢP LỆ: 6/6 panel`** có trong dashboard contract (xem `config/dashboard.yaml`).
-- Evidence dashboard: Grafana Dashboard tự động nạp 6 panel chuẩn contract từ `data/logs.jsonl` qua Loki (`http://localhost:3000/d/day13-ai-observability/day-13-ai-observability-dashboard`):
+- **Kết quả `validate_dashboard.py`**: **`HỢP LỆ: 6/6 panel`** đạt 100% tiêu chí theo contract (`config/dashboard.yaml`).
+- **Phân tích hình ảnh Dashboard thực tế** ([evidence/dashboard.png](evidence/dashboard.png)):
   ![Grafana Dashboard Evidence](evidence/dashboard.png)
-  1. Latency percentiles (P50, P95, P99) với threshold line 3000 ms.
-  2. Request traffic rate (req/min) với threshold line 1 req/min.
-  3. Error rate (%) và breakdown theo `error_type` (Bar/Donut chart) với threshold line 2%.
-  4. Cost over time ($ USD) với threshold line $2.50.
-  5. Input & output tokens (Tokens In vs Tokens Out) với threshold 50,000 tokens.
-  6. Quality proxy (Mean quality score gauge) với threshold line 0.75.
-- SLO đã chọn và lý do:
-  - `latency_p95_ms`: Objective 3000ms, target 99.5% (đảm bảo trải nghiệm người dùng không bị chậm trễ khi chat).
-  - `error_rate_pct`: Objective 2%, target 99.0% (giữ tỷ lệ phản hồi lỗi ở mức thấp chấp nhận được).
-  - `daily_cost_usd`: Objective $2.50, target 100.0% (kiểm soát ngân sách vận hành API LLM).
-  - `quality_score_avg`: Objective 0.75, target 95.0% (đảm bảo chất lượng câu trả lời từ RAG/LLM).
-- Alert rules và runbook: Cấu hình 3 alert rules trong [config/alert_rules.yaml](../config/alert_rules.yaml) tương ứng với runbook chi tiết trong [docs/alerts.md](../docs/alerts.md):
+
+  1. **Panel 1 - Latency percentiles & P95 Latency Stat**:
+     - *Chỉ số hiện tại*: P95 Latency đạt **`710 ms`** (thỏa mãn mượt mà ngưỡng SLO 3,000 ms).
+     - *Đồ thị thời gian*: Các đường phân vị P50 (xanh lam `#3b82f6`), P95 (vàng kim `#ff9f1c`) và P99 (đỏ `#ff0033`) uốn lượn zic-zac liên tục từ 150 ms đến 710 ms trong khung 16:40-17:40, nằm hoàn toàn dưới đường ngưỡng đỏ 3,000 ms.
+  2. **Panel 2 - Request traffic & Request Traffic Stat**:
+     - *Chỉ số hiện tại*: Tốc độ truy vấn tức thời đạt **`3 req/min`** (đạt mốc tiêu chuẩn ≥ 1 req/min).
+     - *Đồ thị thời gian*: Đường sóng xanh lam nhấp nhô biến thiên zic-zac sinh động trong khoảng từ **1 req/min đến 12 req/min** qua 100% tất cả các phút (không có phút nào bị khuyết 0 req).
+  3. **Panel 3 - Error rate and breakdown & Error Rate Stat**:
+     - *Chỉ số hiện tại*: Tỷ lệ lỗi toàn hệ thống chỉ ở mức **`0.511%`** (thỏa mãn SLO < 2.0%).
+     - *Biểu đồ phân loại lỗi (Bar chart)*: Hiển thị trực quan 3 nhóm lỗi rực rỡ đứng cạnh nhau: **`DatabaseError`** (1 lượt), **`LLMError`** (2 lượt) và **`TimeoutError`** (2 lượt).
+  4. **Panel 4 - Cost over time & Total Cost Stat**:
+     - *Chỉ số tích lũy*: Tổng chi phí vận hành API đạt **`$3.89 USD`** (kích hoạt vùng màu cảnh báo vượt ngân sách $2.50 USD trên thẻ Stat).
+     - *Đồ thị thời gian*: Các đỉnh chi phí biến thiên nhấp nhô theo nhịp tải từ $0.005 đến $0.065 USD/phút.
+  5. **Panel 5 - Input and output tokens**:
+     - *Biểu đồ cột (Bar chart)*: Phân tách rõ ràng giữa **Tokens In** (khoảng `70,000 tokens` - cột màu Xanh lam) và **Tokens Out** (khoảng `165,000 tokens` - cột màu Vàng kim).
+  6. **Panel 6 - Quality proxy & Quality Score Stat**:
+     - *Chỉ số hiện tại*: Điểm chất lượng câu trả lời trung bình đạt **`0.875`** (vượt xa ngưỡng SLO 0.75).
+     - *Đồng hồ Gauge*: Hiển thị vòng cung bán nguyệt rực rỡ với kim chỉ chính xác mốc 0.875 thuộc vùng an toàn màu xanh.
+
+- **SLO đã chọn và lý do**:
+  - `latency_p95_ms`: Objective 3,000 ms, target 99.5% (đảm bảo trải nghiệm người dùng chat mượt mà, không bị chờ lâu).
+  - `error_rate_pct`: Objective 2.0%, target 99.0% (giữ tỷ lệ phản hồi lỗi ở mức cực thấp).
+  - `daily_cost_usd`: Objective $2.50 USD, target 100.0% (kiểm soát ngân sách gọi LLM API).
+  - `quality_score_avg`: Objective 0.75, target 95.0% (đảm bảo độ chính xác của câu trả lời từ hệ thống RAG).
+
+- **Alert rules và runbook**: Cấu hình 3 alert rules trong [config/alert_rules.yaml](../config/alert_rules.yaml) tương ứng với runbook chi tiết trong [docs/alerts.md](../docs/alerts.md):
   1. `Chat response latency SLO burn` (P1): `p95_latency_ms > 3000 for 5m` -> Runbook `docs/alerts.md#alert-1`.
   2. `Chat error rate above SLO` (P1): `error_rate_pct > 2 for 5m` -> Runbook `docs/alerts.md#alert-2`.
   3. `Token or cost spike impacting chat sessions` (P2): `total_cost_usd > 2.5 OR total_tokens > 50000 for 60m` -> Runbook `docs/alerts.md#alert-3`.
 
 ## 6. Điều tra challenge
 
-- **Challenge ID**: `practice-incident-rag-slow` (Kịch bản thực hành sự cố RAG Latency Spike)
-- **Triệu chứng từ metrics**: 
-  - Panel 1 `P95 Latency` vọt từ `250 ms` lên **`3,850 ms`** (vượt ngưỡng SLO 3,000 ms).
-  - Alert `Chat response latency SLO burn` kích hoạt báo động mức **P1 (Critical)**.
-- **Trace ID liên quan**: `cffb6afe0632cf8870fa5a3d293d85f4` (Span `retrieval` chiếm 3.4s trên tổng số 3.8s của trace).
-- **Log line/correlation ID liên quan**: 
-  - `correlation_id`: `req-zz-040-01`
-  - Log line: `{"level": "info", "event": "response_sent", "latency_ms": 3850, "feature": "qa", "correlation_id": "req-zz-040-01", "service": "api"}`
-- **Root cause**: Quá trình truy vấn Vector Database (RAG Retriever) bị nghẽn mạng / thiếu index trên bộ vector embedding khiến thời gian tìm kiếm context tăng vọt 15 lần so với bình thường.
-- **Fix action**: Tạm thời bật cache kết quả tìm kiếm RAG và cấu hình fallback sang BM25 keyword search khi độ trễ vector search > 1,500 ms.
-- **Preventive measure**: Bổ sung chỉ số theo dõi `vector_db_search_latency_seconds`, thiết lập Circuit Breaker cho RAG retriever và nâng cấp tài nguyên instance Vector DB.
+- Challenge ID: `day13-k4-observability-v1` (`config/challenge.json`), incident chính thức `rag_slow`, affected feature `monitoring`, latency threshold `2000 ms`.
+- Triệu chứng từ metrics: lọc `data/logs.jsonl` theo session `k4-challenge-*` cho thấy 20/20 response challenge có `latency_ms > 2000`. P95 latency của nhóm response challenge là khoảng **2674 ms**, max **3729 ms**, average **2706.8 ms**. Không có log `level=error`, nên error rate trong tập challenge là **0%**; triệu chứng chính là latency SLO breach, không phải lỗi 5xx.
+- Trace ID / Correlation ID đại diện: correlation ID đại diện `req-07ccb3ff` (`session_id=k4-challenge-s05`, `feature=monitoring`, `model=claude-sonnet-4-5`, `latency_ms=3729`). Trace ID thật cần lấy từ Langfuse bằng cách lọc trace theo metadata/correlation ID `req-07ccb3ff` hoặc session `k4-challenge-s05`, rồi điền vào đây trước khi nộp nếu có ảnh trace challenge.
+- Log line/correlation ID liên quan:
+  - Dòng bật incident trong log: `data/logs.jsonl:284`
 
+```json
+{"service": "control", "payload": {"name": "rag_slow"}, "event": "incident_enabled", "correlation_id": "req-1ecee6de", "level": "warning", "ts": "2026-08-11T10:00:41.874217Z"}
+```
+
+  - Request chậm đại diện: `data/logs.jsonl:285`
+
+```json
+{"service": "api", "payload": {"message_preview": "Describe how to prove a slow span is the root cause."}, "event": "request_received", "env": "dev", "correlation_id": "req-07ccb3ff", "user_id_hash": "0c04335fe098", "session_id": "k4-challenge-s05", "feature": "monitoring", "model": "claude-sonnet-4-5", "level": "info", "ts": "2026-08-11T10:01:14.555175Z"}
+```
+
+  - Response chứng minh latency vượt ngưỡng: `data/logs.jsonl:286`
+
+```json
+{"service": "api", "latency_ms": 3729, "tokens_in": 92, "tokens_out": 107, "cost_usd": 0.001881, "quality_score": 0.8, "payload": {"answer_preview": "Starter answer. Teams should improve this output logic and add better quality ch..."}, "event": "response_sent", "env": "dev", "correlation_id": "req-07ccb3ff", "user_id_hash": "0c04335fe098", "session_id": "k4-challenge-s05", "feature": "monitoring", "model": "claude-sonnet-4-5", "level": "info", "ts": "2026-08-11T10:01:19.356455Z"}
+```
+- Root cause: `rag_slow` được bật ngay trước loạt request challenge (`incident_enabled` tại `10:00:41Z`). Trong code, khi `STATE["rag_slow"]` bật, `app/mock_rag.py` thêm `time.sleep(2.5)` trong bước retrieve; vì vậy các request feature `monitoring` của session `k4-challenge-*` đều tăng latency lên khoảng 2.65s-3.73s trong khi không phát sinh error. Chuỗi chứng minh: Metrics phát hiện P95 latency vượt 2000 ms -> Trace của request `req-07ccb3ff` cần cho thấy span retrieve/generation chậm -> Logs xác nhận cùng correlation ID có `latency_ms=3729`, `feature=monitoring`, `model=claude-sonnet-4-5`.
+- Fix action: tắt incident `rag_slow` sau khi chụp đủ evidence bằng `python scripts/inject_incident.py --scenario rag_slow --disable` hoặc endpoint disable tương ứng; sau đó chạy lại load test ngắn và xác nhận P95 quay về dưới ngưỡng 2000/3000 ms.
+- Preventive measure: giữ alert `Chat response latency SLO burn` cho P95 latency, bắt buộc dashboard có SLO line và runbook yêu cầu lưu metric window + trace ID + log line cùng correlation ID. Với hệ thống thật, thêm timeout/budget cho bước retrieve, cache kết quả truy vấn phổ biến, và theo dõi riêng latency theo span để phát hiện RAG/retrieval chậm trước khi ảnh hưởng toàn bộ request.
+
+### Câu hỏi phản biện CP3
+
+- Vì sao kết luận root cause là `rag_slow` chứ không phải LLM hoặc lỗi API? Vì log challenge không có `level=error`, token/cost không tăng bất thường, model không đổi, nhưng tất cả request `feature=monitoring` sau dòng `incident_enabled` của `rag_slow` đều có latency >2000 ms. Code `app/mock_rag.py` cũng chỉ ra `rag_slow` thêm `time.sleep(2.5)` ở bước retrieve, khớp với mức tăng latency quan sát được.
+- Correlation ID khác trace ID thế nào và dùng chúng ra sao trong incident này? Correlation ID (`req-07ccb3ff`) đi qua log/API để nối `request_received` với `response_sent`; trace ID là định danh trong Langfuse để mở waterfall/span. Khi điều tra, dùng metrics tìm request chậm, mở trace để xem span chậm, rồi dùng correlation ID trong trace/log để chứng minh log line JSON thô thuộc đúng request đó.
 
 ## 7. Đóng góp cá nhân
 
