@@ -2,14 +2,19 @@
 
 ## 1. Thông tin nhóm
 
-- Tên nhóm:
-- Repository URL:
+## 1. Thông tin nhóm
+
+- Tên nhóm:50s
+- Repository URL: https://github.com/Zeustakeshi/Day13-K4-Observability
 - Commit SHA cuối:
 - Thành viên và vai trò:
 
 ## 2. Kết quả kỹ thuật
 
-- Điểm `validate_logs.py`: **100/100** — 21 log records, 0 missing required fields, 0 missing enrichment, 10 unique correlation IDs, 0 PII leak. Xem [validate_logs_score.png](evidence/validate_logs_score.png).
+<!-- - Điểm `validate_logs.py`: **100/100** — 21 log records, 0 missing required fields, 0 missing enrichment, 10 unique correlation IDs, 0 PII leak. Xem [validate_logs_score.png](evidence/validate_logs_score.png). -->
+
+- Baseline Checkpoint 0 `validate_logs.py`: **30/100**. Evidence: [validate_log_checkpoint0.png](evidence/validate_log_checkpoint0.png).
+- Sau Checkpoint 1 `validate_logs.py`: **100/100** — 21 log records, 0 missing required fields, 0 missing enrichment, 10 unique correlation IDs, 0 PII leak. Evidence: [validate_logs_checkpoint1.png](evidence/validate_logs_checkpoint1.png).
 - Tổng số traces: 6 traces / 12 observations trên Langfuse (user `95b6504a8bd6`, xem [detail_langfuse.png](evidence/detail_langfuse.png)).
 - Số PII leak còn lại: 0 (theo `validate_logs.py`, kiểm tra độc lập bằng regex email/phone/CCCD/thẻ tín dụng trên toàn bộ record thô).
 - Link/đường dẫn dashboard: _(điền ở mục 5 sau khi hoàn tất CP checkpoint dashboard)_
@@ -64,5 +69,5 @@
 Với mỗi thành viên, ghi rõ nhiệm vụ và link commit/PR tương ứng.
 
 | Thành viên | Phần việc | Commit/PR | Điều đã học |
-|---|---|---|---|
-| | | | |
+| ---------- | --------- | --------- | ----------- |
+|            |           |           |             |
