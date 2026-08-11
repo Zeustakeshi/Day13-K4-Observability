@@ -16,3 +16,19 @@ scrape_configs:
         labels:
           job: day13-logs
           __path__: /var/log/app_data/logs.jsonl
+    pipeline_stages:
+      - json:
+          expressions:
+            ts: ts
+            event: event
+            latency_ms: latency_ms
+            cost_usd: cost_usd
+            tokens_in: tokens_in
+            tokens_out: tokens_out
+            quality_score: quality_score
+            error_type: error_type
+      - timestamp:
+          source: ts
+          format: RFC3339Nano
+          fallback_formats:
+            - RFC3339
