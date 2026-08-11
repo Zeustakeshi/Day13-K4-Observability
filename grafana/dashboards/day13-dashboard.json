@@ -19,12 +19,12 @@
         "defaults": {
           "color": { "mode": "thresholds" },
           "custom": { "sparkline": { "show": true } },
-          "unit": "ms",
+          "unit": "s",
           "thresholds": {
             "mode": "absolute",
             "steps": [
               { "color": "#ff9f1c", "value": null },
-              { "color": "#ff0033", "value": 3000 }
+              { "color": "#ff0033", "value": 3 }
             ]
           }
         }
@@ -41,7 +41,7 @@
         {
           "datasource": { "type": "loki", "uid": "Loki" },
           "editorMode": "code",
-          "expr": "max by () (avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [24h]))",
+          "expr": "max by () (avg_over_time({job=\"day13-logs\"} | json | event=\"response_sent\" | unwrap latency_ms [24h])) / 1000",
           "queryType": "range",
           "refId": "A"
         }
@@ -386,12 +386,46 @@
         },
         "overrides": [
           {
+            "matcher": { "id": "byFrameRefID", "options": "A" },
+            "properties": [
+              { "id": "displayName", "value": "Tokens In" },
+              { "id": "color", "value": { "fixedColor": "#3b82f6", "mode": "fixed" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byFrameRefID", "options": "B" },
+            "properties": [
+              { "id": "displayName", "value": "Tokens Out" },
+              { "id": "color", "value": { "fixedColor": "#ff9f1c", "mode": "fixed" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Value #A" },
+            "properties": [
+              { "id": "displayName", "value": "Tokens In" },
+              { "id": "color", "value": { "fixedColor": "#3b82f6", "mode": "fixed" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Value #B" },
+            "properties": [
+              { "id": "displayName", "value": "Tokens Out" },
+              { "id": "color", "value": { "fixedColor": "#ff9f1c", "mode": "fixed" } }
+            ]
+          },
+          {
             "matcher": { "id": "byName", "options": "Tokens In" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "#3b82f6", "mode": "fixed" } }]
+            "properties": [
+              { "id": "displayName", "value": "Tokens In" },
+              { "id": "color", "value": { "fixedColor": "#3b82f6", "mode": "fixed" } }
+            ]
           },
           {
             "matcher": { "id": "byName", "options": "Tokens Out" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "#ff9f1c", "mode": "fixed" } }]
+            "properties": [
+              { "id": "displayName", "value": "Tokens Out" },
+              { "id": "color", "value": { "fixedColor": "#ff9f1c", "mode": "fixed" } }
+            ]
           }
         ]
       },
